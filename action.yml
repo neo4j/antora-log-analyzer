@@ -8,7 +8,7 @@ inputs:
   log-file:
     description: 'Path to Antora log file'
     required: true
-    default: './antora-log.json'
+    default: './log.json'
 runs:
   using: 'node16'
   main: 'dist/index.js'
