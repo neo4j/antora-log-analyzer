@@ -8379,6 +8379,14 @@ module.exports = require("path");
 
 /***/ }),
 
+/***/ 7282:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("process");
+
+/***/ }),
+
 /***/ 5477:
 /***/ ((module) => {
 
@@ -8488,7 +8496,8 @@ const core = __nccwpck_require__(6246);
 const github = __nccwpck_require__(2938);
 const { ChildProcess } = __nccwpck_require__(2081);
 
-const fs = __nccwpck_require__(7147)
+const fs = __nccwpck_require__(7147);
+const { title } = __nccwpck_require__(7282);
 const readline = __nccwpck_require__(4521);
 const util = __nccwpck_require__(3837)
 
@@ -8500,8 +8509,8 @@ function processLineByLine(result) {
 
   try {
     let msgData = []    
-    const logFile = core.getInput('log-file')
-    // const logFile = '../../../build/log/log.json'
+    // const logFile = core.getInput('log-file')
+    const logFile = typeof payload !== 'undefined' && payload ? core.getInput('log-file') : './log.json'
 
     const rl = readline.createInterface({
       input: fs.createReadStream(logFile),
@@ -8568,8 +8577,13 @@ function processLog()
         core.warning(anno)
       }
 
+      if (report.messages.warn.length || report.messages.error.length) {
+        console.log(report.messages)
+        core.info('The Antora log contains warnings or errors for files outside this repo')
+      }
 
-    
+
+    // console.log(report.annotations)
     
 
 
@@ -8597,13 +8611,15 @@ function groupBy(objectArray, property) {
 function constructAnnotation(msg) {
 
   const file = fileToAnnoFile(msg)
-  
-  const sep = "::"
-  const fileT = " file=" + file
-  const lineT = msg.file.line ? ",line=" + msg.file.line : ''
-  const titleT = ",title=" + file
 
-  const annotation = fileT + lineT + titleT + sep + msg.msg
+  const annotation = {
+    file: file,
+    line: msg.file.line ? msg.file.line : '',
+    title: file,
+    msg: msg.msg,
+    url: msg.source.url,
+    refname: msg.source.refname
+  }
   
   return annotation
 }
