@@ -1,0 +1,14 @@
+name: 'Antora JSON Log Output Analyzer'
+description: 'Output messages and annotations from Antora's JSON log output'
+inputs:
+  repo: 
+    description: 'repo name'
+    required: true
+    default: ${{ github.event.repository.name }}
+  log-file:
+    description: 'Path to Antora log file'
+    required: true
+    default: './antora-log.json'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
