@@ -1,5 +1,5 @@
 name: 'Antora JSON Log Output Analyzer'
-description: 'Output messages and annotations from Antora's JSON log output'
+description: 'Output messages and annotations from Antora JSON log output'
 inputs:
   repo: 
     description: 'repo name'
