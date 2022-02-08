@@ -8315,14 +8315,6 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 2081:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("child_process");
-
-/***/ }),
-
 /***/ 2361:
 /***/ ((module) => {
 
@@ -8376,14 +8368,6 @@ module.exports = require("os");
 
 "use strict";
 module.exports = require("path");
-
-/***/ }),
-
-/***/ 7282:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("process");
 
 /***/ }),
 
@@ -8494,14 +8478,26 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(6246);
 const github = __nccwpck_require__(2938);
-const { ChildProcess } = __nccwpck_require__(2081);
-
 const fs = __nccwpck_require__(7147);
-const { title } = __nccwpck_require__(7282);
+// const { title } = require('process');
 const readline = __nccwpck_require__(4521);
 const util = __nccwpck_require__(3837)
 
+
+// A step in github actions can only emit 10 annotations
+// or it might be 10 of each type...
 const annotationsLimit = 10
+
+// some colours for the log outputs
+const ansiLabels = {
+  warning: '\u001b[38;2;255;222;99m',
+  error: '\u001b[38;2;255;0;0m',
+  info: '\u001b[38;5;6m',
+  reset: '\033[m'
+}
+
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+
 // const payload = JSON.stringify(github.context.payload, undefined, 2)
 // console.log(`The event payload: ${payload}`);
 
@@ -8556,30 +8552,47 @@ function processLog()
       
       for (const level of unique(levels)) {
         report.annotations[level] = []
-        report.messages[level] = []
+        // report.messages[level] = []
       }
 
       
       for(const msg of msgData) {
-        if (msg.source.worktree) {
+        if (msg.source.worktree || msg.source.url.includes(runningRepo)) {
           report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
-          report.messages[msg.level].push(constructAnnotation(msg))
+          report.messages.push(constructAnnotation(msg))
         }
 
       }
 
       for (const anno of report.annotations.error.slice(0,annotationsLimit)) {
-        core.error(anno)
+        // console.log(anno)
+        // core.error(JSON.stringify(anno), anno.msg)
+        core.error(anno.msg, anno)
+        // core.error(
+        //   `title=${anno.title}` |
+        //   `file=${anno.file} startLine=${anno.line}`
+          
+          
+        //   )
+        // core.error({
+        //   title: anno.title,
+        //   file: anno.file
+        // })
       }
 
       for (const anno of report.annotations.warn.slice(0,(annotationsLimit - report.annotations.error.length))) {
-        core.warning(anno)
+        core.warning(anno.msg, anno)
       }
 
-      if (report.messages.warn.length || report.messages.error.length) {
-        console.log(report.messages)
-        core.info('The Antora log contains warnings or errors for files outside this repo')
+      if (report.messages.length) {
+        // console.log(report.messages)
+        core.notice('The Antora log contains warnings or errors for files outside this repo')
+      }
+
+      for (const info of report.messages) {
+        // console.log(info)
+        core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.info}${info.msg}\n${ansiLabels.reset}  file: ${info.href}/${info.file}\n`)
       }
 
 
@@ -8618,7 +8631,10 @@ function constructAnnotation(msg) {
     title: file,
     msg: msg.msg,
     url: msg.source.url,
-    refname: msg.source.refname
+    href: hrefFromUrl(msg.source),
+    refname: msg.source.refname,
+    level:levelToAnnoLevel(msg.level),
+    name: msg.name
   }
   
   return annotation
@@ -8632,6 +8648,11 @@ function levelToAnnoLevel(level) {
 function fileToAnnoFile(msg) {
   const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
   return file
+}
+
+function hrefFromUrl(source) {
+  const href = source.url.replace('.git','') + '/tree/' + source.refname
+  return href
 }
 })();
 
