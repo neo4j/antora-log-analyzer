@@ -9,6 +9,10 @@ inputs:
     description: 'Path to Antora log file'
     required: true
     default: './log.json'
+  fail-on-errors:
+    description: 'Mark a build as failed if the Antora log contains errors'
+    required: true
+    default: true
   fail-on-warnings:
     description: 'Mark a build as failed if the Antora log contains warnings'
     required: true

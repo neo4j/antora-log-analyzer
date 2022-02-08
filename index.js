@@ -22,6 +22,7 @@ const ansiLabels = {
 }
 
 const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+const failOnErrors = core.getInput('fail-on-errors') ? core.getInput('fail-on-errors') : true
 const failOnWarnings = core.getInput('fail-on-warnings') ? core.getInput('fail-on-warnings') : false
 
 // const payload = JSON.stringify(github.context.payload, undefined, 2)
@@ -123,9 +124,7 @@ function processLog()
 
       core.endGroup()
 
-      console.log(levelsInLog)
-
-      if (levelsInLog.includes('error')) {
+      if (failOnErrors && levelsInLog.includes('error')) {
         core.setFailed(`Antora log contains one or more errors`);
       } else 
       if (failOnWarnings && ( levelsInLog.includes('warn') || levelsInLog.includes('warning'))) {
