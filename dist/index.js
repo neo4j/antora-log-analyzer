@@ -8488,6 +8488,8 @@ const util = __nccwpck_require__(3837)
 // or it might be 10 of each type...
 const annotationsLimit = 10
 
+let otherMsgs = false
+
 // some colours for the log outputs
 const ansiLabels = {
   warning: '\u001b[38;2;255;222;99m',
@@ -8560,7 +8562,9 @@ function processLog()
       for(const msg of msgData) {
         if (msg.source && ( msg.source.worktree || msg.source.url.includes(runningRepo) ) ) {
           report.annotations[msg.level].push(constructAnnotation(msg))
-        } 
+        } else {
+          otherMsgs = true
+        }
         report.messages.push(constructAnnotation(msg))
 
       }
@@ -8575,7 +8579,7 @@ function processLog()
         core.warning(anno.msg, anno)
       }
 
-      if (report.messages.length) {
+      if (otherMsgs) {
         // console.log(report.messages)
         core.notice('The Antora log contains warnings or errors for files outside this repo')
       }
