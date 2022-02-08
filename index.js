@@ -22,8 +22,8 @@ const ansiLabels = {
 }
 
 const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
-const failOnErrors = core.getInput('fail-on-errors') ? core.getInput('fail-on-errors') : true
-const failOnWarnings = core.getInput('fail-on-warnings') ? core.getInput('fail-on-warnings') : false
+const failOnErrors = core.getInput('fail-on-errors')
+const failOnWarnings = core.getInput('fail-on-warnings')
 
 // const payload = JSON.stringify(github.context.payload, undefined, 2)
 // console.log(`The event payload: ${payload}`);
@@ -103,7 +103,7 @@ function processLog()
         core.warning(anno.msg, anno)
       }
 
-      if (otherMsgs) {
+      if (otherMsgs === true) {
         // console.log(report.messages)
         core.notice(`The Antora log contains warnings or errors for files outside this repo\nCheck the log of this step for more details`)
       }
@@ -124,10 +124,10 @@ function processLog()
 
       core.endGroup()
 
-      if (failOnErrors && levelsInLog.includes('error')) {
+      if (failOnErrors === true && levelsInLog.includes('error')) {
         core.setFailed(`Antora log contains one or more errors`);
       } else 
-      if (failOnWarnings && ( levelsInLog.includes('warn') || levelsInLog.includes('warning'))) {
+      if (failOnWarnings === true && ( levelsInLog.includes('warn') || levelsInLog.includes('warning'))) {
         core.setFailed(`Antora log contains one or more warnings`);
       }
         
