@@ -14,7 +14,8 @@ const annotationsLimit = 10
 const ansiLabels = {
   warning: '\u001b[38;2;255;222;99m',
   error: '\u001b[38;2;255;0;0m',
-  info: '\u001b[38;5;6m',
+  info: '\u001b[38;2;1;139;255m',
+  cyan: '\u001b[38;5;6m',
   reset: '\033[m'
 }
 
@@ -79,28 +80,17 @@ function processLog()
 
       
       for(const msg of msgData) {
-        if (msg.source.worktree || msg.source.url.includes(runningRepo)) {
+        if (msg.source && ( msg.source.worktree || msg.source.url.includes(runningRepo) ) ) {
           report.annotations[msg.level].push(constructAnnotation(msg))
-        } else {
-          report.messages.push(constructAnnotation(msg))
-        }
+        } 
+        report.messages.push(constructAnnotation(msg))
 
       }
 
+      core.startGroup('Annotations')
+
       for (const anno of report.annotations.error.slice(0,annotationsLimit)) {
-        // console.log(anno)
-        // core.error(JSON.stringify(anno), anno.msg)
         core.error(anno.msg, anno)
-        // core.error(
-        //   `title=${anno.title}` |
-        //   `file=${anno.file} startLine=${anno.line}`
-          
-          
-        //   )
-        // core.error({
-        //   title: anno.title,
-        //   file: anno.file
-        // })
       }
 
       for (const anno of report.annotations.warn.slice(0,(annotationsLimit - report.annotations.error.length))) {
@@ -112,15 +102,21 @@ function processLog()
         core.notice('The Antora log contains warnings or errors for files outside this repo')
       }
 
+      core.endGroup()
+
+      core.startGroup('Antora log messages')
+
       for (const info of report.messages) {
         // console.log(info)
-        core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.info}${info.msg}\n${ansiLabels.reset}  file: ${info.href}/${info.file}\n`)
+        if (info.name == 'asciidoctor') {
+          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.href}/${info.file}\n`)
+        } else {
+          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`)
+        }
+        
       }
 
-
-    // console.log(report.annotations)
-    
-
+      core.endGroup()
 
     });
 }
@@ -147,17 +143,34 @@ function constructAnnotation(msg) {
 
   const file = fileToAnnoFile(msg)
 
-  const annotation = {
-    file: file,
-    line: msg.file.line ? msg.file.line : '',
-    title: file,
-    msg: msg.msg,
-    url: msg.source.url,
-    href: hrefFromUrl(msg.source),
-    refname: msg.source.refname,
-    level:levelToAnnoLevel(msg.level),
-    name: msg.name
+  let annotation
+
+  if (msg.name == 'asciidoctor') {
+
+    annotation = {
+      file: file.replace(/^\/+/, ''),
+      startLine: msg.file.line ? msg.file.line : '',
+      title: file.replace(/^\/+/, ''),
+      msg: msg.msg,
+      url: msg.source.url,
+      href: hrefFromUrl(msg.source),
+      refname: msg.source.refname,
+      level:levelToAnnoLevel(msg.level),
+      name: msg.name
+    }
+
+  } else {
+
+      annotation = {
+        title: msg.name,
+        msg: msg.msg,
+        level:levelToAnnoLevel(msg.level),
+        name: msg.name
+      }
+
+      
   }
+
   
   return annotation
 }
@@ -168,6 +181,7 @@ function levelToAnnoLevel(level) {
 }
 
 function fileToAnnoFile(msg) {
+  if (!msg.source) return ''
   const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
   return file
 }
