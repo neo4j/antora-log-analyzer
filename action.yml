@@ -2,9 +2,9 @@ name: 'Antora JSON Log Output Analyzer'
 description: 'Output messages and annotations from Antora JSON log output'
 inputs:
   repo: 
-    description: 'repo name'
+    description: 'repo owner and name'
     required: true
-    default: ${{ github.event.repository.name }}
+    default: ${{ github.repository }}
   log-file:
     description: 'Path to Antora log file'
     required: true
