@@ -8573,12 +8573,16 @@ function processLog()
 
       core.startGroup('Annotations')
 
-      for (const anno of report.annotations.error.slice(0,annotationsLimit)) {
-        core.error(anno.msg, anno)
+      if (report.annotations.error) {
+        for (const anno of report.annotations.error.slice(0,annotationsLimit)) {
+          core.error(anno.msg, anno)
+        }
       }
 
-      for (const anno of report.annotations.warn.slice(0,annotationsLimit)) {
-        core.warning(anno.msg, anno)
+      if (report.annotations.warn) {
+        for (const anno of report.annotations.warn.slice(0,annotationsLimit)) {
+          core.warning(anno.msg, anno)
+        }
       }
 
       if (otherMsgs === true) {
