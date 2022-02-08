@@ -8500,6 +8500,7 @@ const ansiLabels = {
 }
 
 const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+const failOnWarnings = core.getInput('fail-on-warnings') ? core.getInput('fail-on-warnings') : false
 
 // const payload = JSON.stringify(github.context.payload, undefined, 2)
 // console.log(`The event payload: ${payload}`);
@@ -8547,13 +8548,13 @@ function processLog()
       }
 
 
-      let levels = []
+      let levelsInLog = []
       for(const msg of msgData) {
-        levels.push(msg.level)
+        levelsInLog.push(msg.level)
       } 
       let unique = a => [...new Set(a)];
       
-      for (const level of unique(levels)) {
+      for (const level of unique(levelsInLog)) {
         report.annotations[level] = []
         // report.messages[level] = []
       }
@@ -8575,13 +8576,13 @@ function processLog()
         core.error(anno.msg, anno)
       }
 
-      for (const anno of report.annotations.warn.slice(0,(annotationsLimit - report.annotations.error.length))) {
+      for (const anno of report.annotations.warn.slice(0,annotationsLimit)) {
         core.warning(anno.msg, anno)
       }
 
       if (otherMsgs) {
         // console.log(report.messages)
-        core.notice('The Antora log contains warnings or errors for files outside this repo')
+        core.notice(`The Antora log contains warnings or errors for files outside this repo\nCheck the log of this step for more details`)
       }
 
       core.endGroup()
@@ -8600,6 +8601,15 @@ function processLog()
 
       core.endGroup()
 
+      console.log(levelsInLog)
+
+      if (levelsInLog.includes('error')) {
+        core.setFailed(`Antora log contains one or more errors`);
+      } else 
+      if (failOnWarnings && ( levelsInLog.includes('warn') || levelsInLog.includes('warning'))) {
+        core.setFailed(`Antora log contains one or more warnings`);
+      }
+        
     });
 }
 

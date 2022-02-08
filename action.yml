@@ -9,6 +9,12 @@ inputs:
     description: 'Path to Antora log file'
     required: true
     default: './log.json'
+  fail-on-warnings:
+    description: 'Mark a build as failed if the Antora log contains warnings'
+    required: true
+    default: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
+branding:
+  icon: 'book-open'
