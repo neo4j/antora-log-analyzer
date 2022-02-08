@@ -8565,7 +8565,7 @@ function processLog()
         if (msg.source && ( msg.source.worktree || msg.source.url.includes(runningRepo) ) ) {
           report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
-          otherMsgs = true
+          if (msg.name == 'asciidoctor') otherMsgs = true
         }
         report.messages.push(constructAnnotation(msg))
 
@@ -8582,8 +8582,7 @@ function processLog()
       }
 
       if (otherMsgs === true) {
-        // console.log(report.messages)
-        core.notice(`The Antora log contains warnings or errors for files outside this repo\nCheck the log of this step for more details`)
+        core.notice(`The Antora log contains warnings or errors for files outside this repo. Check the log of this step for more details`)
       }
 
       core.endGroup()
@@ -8601,6 +8600,8 @@ function processLog()
       }
 
       core.endGroup()
+
+      console.log(`failOnErrors: ${failOnErrors} - levelsInLog: ${levelsInLog.includes('error')}`)
 
       if (failOnErrors === true && levelsInLog.includes('error')) {
         core.setFailed(`Antora log contains one or more errors`);
