@@ -182,9 +182,7 @@ const constructAnnotation = function (msg) {
 
 const checkHeadRef = function (file,url) {
 
-  //
   if (context.payload.pull_request) {
-    console.log(context.payload.pull_request)
     return context.payload.pull_request.html_url + '/commits/' + context.payload.pull_request.head.sha
   }
 
