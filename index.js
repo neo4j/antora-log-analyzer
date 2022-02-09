@@ -7,8 +7,11 @@ const util = require('util')
 
 // github context
 const context = github.context
+console.log(util.inspect(context, {showHidden: false, depth: null, colors: true}))
 
-// const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
 
