@@ -104,3 +104,4 @@ typings/
 
 # Antora
 build/
+log.json

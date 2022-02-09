@@ -5,11 +5,18 @@ const fs = require('fs');
 const readline = require('readline');
 const util = require('util')
 
+// github context
+const context = github.context
+
+// const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+const failOnErrors = core.getInput('fail-on-errors') === 'true'
+const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
 
 // A step in github actions can only emit 10 annotations
 // or it might be 10 of each type...
 const annotationsLimit = 10
 
+// messages for files included in this build, but not in the source repo
 let otherMsgs = false
 
 // some colours for the log outputs
@@ -21,12 +28,11 @@ const ansiLabels = {
   reset: '\033[m'
 }
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
-const failOnErrors = core.getInput('fail-on-errors') === 'true'
-const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
+if (typeof payload !== 'undefined' && payload) {
+  console.log(`The event payload: ${payload}`);
+}
+// const payload = JSON.stringify(context.payload, undefined, 2)
 
-// const payload = JSON.stringify(github.context.payload, undefined, 2)
-// console.log(`The event payload: ${payload}`);
 
 function processLineByLine(result) {
 
@@ -168,7 +174,7 @@ function constructAnnotation(msg) {
       startLine: msg.file.line ? msg.file.line : '',
       title: file.replace(/^\/+/, ''),
       msg: msg.msg,
-      url: msg.source.url,
+      url: checkHeadRef(msg.source.url),
       href: hrefFromUrl(msg.source),
       refname: msg.source.refname,
       level:levelToAnnoLevel(msg.level),
@@ -189,6 +195,11 @@ function constructAnnotation(msg) {
 
   
   return annotation
+}
+
+function checkHeadRef(url) {
+  const checkedUrl = context.payload.head_ref ? url.replace(context.base_ref,context.head_ref) : url
+  return checkedUrl
 }
 
 function levelToAnnoLevel(level) {
