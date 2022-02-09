@@ -105,3 +105,4 @@ typings/
 # Antora
 build/
 log.json
+context.json

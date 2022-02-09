@@ -8484,11 +8484,12 @@ const readline = __nccwpck_require__(4521);
 const util = __nccwpck_require__(3837)
 
 // github context
-const context = github.context
-console.log(util.inspect(context, {showHidden: false, depth: null, colors: true}))
+// const context = github.context
+const context = JSON.parse(fs.readFileSync('context.json'))
 
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/antora-actions'
+
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/actions-demo'
 console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
@@ -8600,19 +8601,19 @@ function processLog()
 
       core.endGroup()
 
-      core.startGroup('Antora log messages')
+      // core.startGroup('Antora log messages')
 
       for (const info of report.messages) {
         // console.log(info)
         if (info.name == 'asciidoctor') {
-          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.href}/${info.file}\n`)
+          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.url}\n`)
         } else {
           core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`)
         }
         
       }
 
-      core.endGroup()
+      // core.endGroup()
 
       if (failOnErrors === true && levelsInLog.includes('error')) {
         core.setFailed(`Antora log contains one or more errors`);
@@ -8624,25 +8625,9 @@ function processLog()
     });
 }
 
-// function processLog() {
-//   const msgData = processLineByLine()
-//   console.log(msgData)
-// }
-
 processLog()
 
-function groupBy(objectArray, property) {
-  return objectArray.reduce(function (acc, obj) {
-    let key = obj[property]
-    if (!acc[key]) {
-      acc[key] = []
-    }
-    acc[key].push(obj)
-    return acc
-  }, {})
-}
-
-function constructAnnotation(msg) {
+const constructAnnotation = function (msg) {
 
   const file = fileToAnnoFile(msg)
 
@@ -8655,8 +8640,7 @@ function constructAnnotation(msg) {
       startLine: msg.file.line ? msg.file.line : '',
       title: file.replace(/^\/+/, ''),
       msg: msg.msg,
-      url: checkHeadRef(msg.source.url),
-      href: hrefFromUrl(msg.source),
+      url: checkHeadRef(file,msg.source.url),
       refname: msg.source.refname,
       level:levelToAnnoLevel(msg.level),
       name: msg.name
@@ -8673,31 +8657,34 @@ function constructAnnotation(msg) {
 
       
   }
-
   
   return annotation
 }
 
-function checkHeadRef(url) {
-  const checkedUrl = context.payload.head_ref ? url.replace(context.base_ref,context.head_ref) : url
-  return checkedUrl
+const checkHeadRef = function (file,url) {
+
+  if (context.payload.pull_request) {
+    return context.payload.pull_request ? context.payload.html_url + '/commits/' + context.payload.head.sha : url
+  }
+
+  if (context.payload.ref) {
+    return context.payload.commits.url ? context.payload.commits.url : url
+  }
+  
+  return url
 }
 
-function levelToAnnoLevel(level) {
+const levelToAnnoLevel = function (level) {
   const annoLevel = level == 'warn' ? 'warning' : level
   return annoLevel
 }
 
-function fileToAnnoFile(msg) {
+const fileToAnnoFile = function (msg) {
   if (!msg.source) return ''
   const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
   return file
 }
 
-function hrefFromUrl(source) {
-  const href = source.url.replace('.git','') + '/tree/' + source.refname
-  return href
-}
 })();
 
 module.exports = __webpack_exports__;
