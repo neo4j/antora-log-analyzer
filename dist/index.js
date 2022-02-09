@@ -8663,7 +8663,7 @@ const checkHeadRef = function (file,url) {
   //
   if (context.payload.pull_request) {
     console.log(context.payload.pull_request)
-    return context.payload.pull_request.html_url + '/commits/' + context.payload.pull_request.commits_url.head.sha
+    return context.payload.pull_request.html_url + '/commits/' + context.payload.pull_request.head.sha
   }
 
   if (context.payload.ref) {
