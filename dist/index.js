@@ -8484,10 +8484,7 @@ const readline = __nccwpck_require__(4521);
 const util = __nccwpck_require__(3837)
 
 // github context
-// const context = github.context
-const context = JSON.parse(fs.readFileSync('context.json'))
-
-
+const context = github.context
 
 const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/actions-demo'
 console.log(`runningRepo: ${runningRepo}`)

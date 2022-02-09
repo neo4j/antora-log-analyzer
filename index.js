@@ -6,10 +6,7 @@ const readline = require('readline');
 const util = require('util')
 
 // github context
-// const context = github.context
-const context = JSON.parse(fs.readFileSync('context.json'))
-
-
+const context = github.context
 
 const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/actions-demo'
 console.log(`runningRepo: ${runningRepo}`)
