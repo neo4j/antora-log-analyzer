@@ -1,5 +1,8 @@
 name: 'Antora JSON Log Output Analyzer'
 description: 'Output messages and annotations from Antora JSON log output'
+branding:
+  icon: 'code'
+  color: 'green'
 inputs:
   repo: 
     description: 'repo owner and name'
