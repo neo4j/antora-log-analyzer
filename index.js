@@ -152,7 +152,7 @@ const constructAnnotation = function (msg) {
 
   let annotation
 
-  if (msg.name == 'asciidoctor') {
+  if (file) {
 
     annotation = {
       file: file.replace(/^\/+/, ''),
