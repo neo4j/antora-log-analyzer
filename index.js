@@ -169,7 +169,7 @@ const constructAnnotation = function (msg) {
 
       annotation = {
         title: msg.name,
-        msg: msg.msg,
+        msg: 'Test message: ' + msg.msg,
         level:levelToAnnoLevel(msg.level),
         name: msg.name
       }
