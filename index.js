@@ -158,7 +158,7 @@ const constructAnnotation = function (msg) {
     annotation = {
       file: file.replace(/^\/+/, ''),
       startLine: msg.file.line ? msg.file.line : '',
-      title: file.replace(/^\/+/, ''),
+      title: msg.name,
       msg: msg.msg,
       url: checkHeadRef(file,msg.source.url),
       refname: msg.source.refname,
