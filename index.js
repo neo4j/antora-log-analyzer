@@ -8,7 +8,7 @@ const util = require('util')
 // github context
 const context = github.context
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/actions-demo'
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/actions-demo'
 console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
@@ -123,7 +123,6 @@ function processLog()
       // core.startGroup('Antora log messages')
 
       for (const info of report.messages) {
-        // console.log(info)
         if (info.url) {
           core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.url}\n`)
         } else {
@@ -148,8 +147,6 @@ processLog()
 
 const constructAnnotation = function (msg) {
 
-  console.log(msg)
-
   const file = fileToAnnoFile(msg)
 
   let annotation
@@ -160,7 +157,7 @@ const constructAnnotation = function (msg) {
       file: file.replace(/^\/+/, ''),
       startLine: msg.file.line ? msg.file.line : '',
       title: file.replace(/^\/+/, ''),
-      msg: 'Test message: ' + msg.msg,
+      msg: msg.msg,
       url: checkHeadRef(file,msg.source.url),
       refname: msg.source.refname,
       level:levelToAnnoLevel(msg.level),
@@ -171,7 +168,7 @@ const constructAnnotation = function (msg) {
 
       annotation = {
         title: msg.name,
-        msg: 'Test message: ' + msg.msg,
+        msg: msg.msg,
         level:levelToAnnoLevel(msg.level),
         name: msg.name
       }
