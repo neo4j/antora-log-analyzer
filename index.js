@@ -26,7 +26,7 @@ const ansiLabels = {
   error: '\u001b[38;2;255;0;0m',
   info: '\u001b[38;2;1;139;255m',
   cyan: '\u001b[38;5;6m',
-  reset: '\033[m'
+  reset: '\x1B[m'
 }
 
 if (typeof payload !== 'undefined' && payload) {
