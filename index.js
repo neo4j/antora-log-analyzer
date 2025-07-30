@@ -8,7 +8,7 @@ const util = require('util')
 // github context
 const context = github.context
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'recrwplay/actions-demo'
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/actions-demo'
 console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
@@ -26,7 +26,7 @@ const ansiLabels = {
   error: '\u001b[38;2;255;0;0m',
   info: '\u001b[38;2;1;139;255m',
   cyan: '\u001b[38;5;6m',
-  reset: '\033[m'
+  reset: '\x1B[m'
 }
 
 if (typeof payload !== 'undefined' && payload) {
@@ -123,11 +123,12 @@ function processLog()
       // core.startGroup('Antora log messages')
 
       for (const info of report.messages) {
-        // console.log(info)
-        if (info.name == 'asciidoctor') {
-          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.url}\n`)
+        let annotationMsg = `${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`
+        if (info.url) {
+          annotationMsg += `  file: ${info.url}\n`
+          core.info(annotationMsg) // eslint-disable-line no-console
         } else {
-          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`)
+          core.info(annotationMsg) // eslint-disable-line no-console
         }
         
       }
@@ -152,12 +153,12 @@ const constructAnnotation = function (msg) {
 
   let annotation
 
-  if (msg.name == 'asciidoctor') {
+  if (file) {
 
     annotation = {
       file: file.replace(/^\/+/, ''),
       startLine: msg.file.line ? msg.file.line : '',
-      title: file.replace(/^\/+/, ''),
+      title: msg.name,
       msg: msg.msg,
       url: checkHeadRef(file,msg.source.url),
       refname: msg.source.refname,
@@ -203,3 +204,4 @@ const fileToAnnoFile = function (msg) {
   const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
   return file
 }
+
