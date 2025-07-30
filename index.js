@@ -148,6 +148,8 @@ processLog()
 
 const constructAnnotation = function (msg) {
 
+  console.log(msg)
+
   const file = fileToAnnoFile(msg)
 
   let annotation
@@ -158,7 +160,7 @@ const constructAnnotation = function (msg) {
       file: file.replace(/^\/+/, ''),
       startLine: msg.file.line ? msg.file.line : '',
       title: file.replace(/^\/+/, ''),
-      msg: msg.msg,
+      msg: 'Test message: ' + msg.msg,
       url: checkHeadRef(file,msg.source.url),
       refname: msg.source.refname,
       level:levelToAnnoLevel(msg.level),
