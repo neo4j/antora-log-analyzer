@@ -33659,11 +33659,12 @@ function processLog()
       // core.startGroup('Antora log messages')
 
       for (const info of report.messages) {
-        console.log(info)
+        let annotationMsg = `${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`
         if (info.url) {
-          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}  file: ${info.url}\n`)
+          annotationMsg += `  file: ${info.url}\n`
+          core.info(annotationMsg) // eslint-disable-line no-console
         } else {
-          core.info(`${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`)
+          core.info(annotationMsg) // eslint-disable-line no-console
         }
         
       }
@@ -33739,6 +33740,7 @@ const fileToAnnoFile = function (msg) {
   const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
   return file
 }
+
 
 module.exports = __webpack_exports__;
 /******/ })()
