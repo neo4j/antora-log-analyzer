@@ -33544,8 +33544,8 @@ const util = __nccwpck_require__(9023)
 // github context
 const context = github.context
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/actions-demo'
-console.log(`runningRepo: ${runningRepo}`)
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/antora-log-analyzer'
+// console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
 
@@ -33723,7 +33723,7 @@ const checkHeadRef = function (file,url) {
     return context.payload.pull_request.html_url + '/commits/' + context.payload.pull_request.head.sha
   }
 
-  if (context.payload.ref) {
+  if (context.payload.commits) {
     return context.payload.commits.url
   }
   

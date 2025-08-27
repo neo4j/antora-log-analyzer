@@ -187,7 +187,7 @@ const checkHeadRef = function (file,url) {
     return context.payload.pull_request.html_url + '/commits/' + context.payload.pull_request.head.sha
   }
 
-  if (context.payload.ref) {
+  if (context.payload.commits) {
     return context.payload.commits.url
   }
   
