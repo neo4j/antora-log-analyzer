@@ -91,10 +91,12 @@ function processLog()
 
       
       for(const msg of msgData) {
-        if (msg.source && ( msg.source.worktree || msg.source.url.includes(runningRepo) ) ) {
+        if (msg.source) {
+          if ( msg.source.worktree || msg.source.url.includes(runningRepo) ) {
           report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
-          if (msg.name == 'asciidoctor') otherMsgs = true
+            otherMsgs = true
+          }
         }
         report.messages.push(constructAnnotation(msg))
 
@@ -122,17 +124,22 @@ function processLog()
 
       // core.startGroup('Antora log messages')
 
-      for (const info of report.messages) {
-        let annotationMsg = `${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}\n${ansiLabels.reset}`
-        if (info.url) {
-          annotationMsg += `  file: ${info.url}\n`
-          core.info(annotationMsg) // eslint-disable-line no-console
-        } else {
+      // get a list of unique info.name values from report.messages
+      const infoNames = [...new Set(report.messages.map(msg => msg.name))]
+      for (const name of infoNames.sort()) {
+        core.startGroup(name)
+        for (const info of report.messages.filter(msg => msg.name == name)) {
+          let annotationMsg = `${ansiLabels[info.level]}${info.level.toUpperCase()}${ansiLabels.reset}: (${info.name}) ${ansiLabels.cyan}${info.msg}${ansiLabels.reset}`
+          if (info.url) {
+            annotationMsg += `\n  source: ${info.url} (ref: ${info.refname})`
+          }
+          if (info.file) {
+            annotationMsg += `\n  file: ${info.file}`
+          }
           core.info(annotationMsg) // eslint-disable-line no-console
         }
-        
+        core.endGroup()
       }
-
       // core.endGroup()
 
       if (failOnErrors === true && levelsInLog.includes('error')) {
@@ -201,7 +208,7 @@ const levelToAnnoLevel = function (level) {
 
 const fileToAnnoFile = function (msg) {
   if (!msg.source) return ''
-  const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path   
+  const file = msg.source.worktree ? msg.file.path.replace(msg.source.worktree,'') : msg.file.path
   return file
 }
 
