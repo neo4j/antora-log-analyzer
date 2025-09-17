@@ -33629,9 +33629,10 @@ function processLog()
       for(const msg of msgData) {
         if (msg.source) {
           if ( msg.source.worktree || msg.source.url.includes(runningRepo) ) {
-          report.annotations[msg.level].push(constructAnnotation(msg))
+            report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
-            otherMsgs = true
+            // otherMsgs = true
+            report.annotations.warn.push(constructAnnotation(msg))
           }
         }
         report.messages.push(constructAnnotation(msg))
@@ -33731,7 +33732,7 @@ const checkHeadRef = function (file,url) {
   }
 
   if (context.payload.commits) {
-    return context.payload.commits.url
+    return context.payload.commits[0].url
   }
   
   return url
