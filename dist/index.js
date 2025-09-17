@@ -33628,7 +33628,6 @@ function processLog()
       // we will output a notice annotation for this later
       // the log might contain issues relating to files outside the building repo.
       for(const msg of msgData.filter(msg => msg.source && !msg.source.url.includes(runningRepo) ))  {
-        core.info(msg)
         otherMsgs = true
       }
 
