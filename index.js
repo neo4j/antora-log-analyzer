@@ -95,6 +95,7 @@ function processLog()
           if ( msg.source.worktree || msg.source.url.includes(runningRepo) ) {
           report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
+            console.log(msg)
             otherMsgs = true
           }
         }
