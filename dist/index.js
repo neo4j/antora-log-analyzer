@@ -33622,7 +33622,7 @@ function processLog()
       
       for (const level of unique(levelsInLog)) {
         report.annotations[level] = []
-        // report.messages[level] = []
+        report.messages["warn"] = []
       }
 
       
