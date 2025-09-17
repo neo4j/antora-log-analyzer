@@ -195,7 +195,7 @@ const checkHeadRef = function (file,url) {
   }
 
   if (context.payload.commits) {
-    return context.payload.commits.url
+    return context.payload.commits[0].url
   }
   
   return url
