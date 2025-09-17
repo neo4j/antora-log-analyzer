@@ -33544,7 +33544,7 @@ const util = __nccwpck_require__(9023)
 // github context
 const context = github.context
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/antora-log-analyzer'
+const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/docs-antora-analyzer'
 // console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
@@ -33625,18 +33625,21 @@ function processLog()
         report.annotations["warn"] = []
       }
 
-      
-      for(const msg of msgData) {
-        if (msg.source) {
-          if ( msg.source.worktree || msg.source.url.includes(runningRepo) ) {
-            report.annotations[msg.level].push(constructAnnotation(msg))
-        } else {
-            // otherMsgs = true
-            report.annotations["warn"].push(constructAnnotation(msg))
-          }
-        }
-        report.messages.push(constructAnnotation(msg))
+      // if there's a source file in the message, and it's in this repo, add to annotations
+      for(const msg of msgData.filter(msg => msg.source && msg.source.url.includes(runningRepo) ))  {
+        report.annotations[msg.level].push(constructAnnotation(msg))
+      }
 
+      // if there's a source file in the message, and it's NOT in this repo, set otherMsgs to true
+      // we will output a notice annotation for this later
+      // the log might contain issues relating to files outside the building repo.
+      for(const msg of msgData.filter(msg => msg.source && !msg.source.url.includes(runningRepo) ))  {
+        otherMsgs = true
+      }
+
+      // add all messages to report.messages
+      for(const msg of msgData)  {
+        report.messages.push(constructAnnotation(msg))
       }
 
       core.startGroup('Annotations')
