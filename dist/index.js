@@ -33544,7 +33544,7 @@ const util = __nccwpck_require__(9023)
 // github context
 const context = github.context
 
-const runningRepo = typeof payload !== 'undefined' && payload ? core.getInput('repo') : 'neo4j/docs-antora-analyzer'
+const runningRepo = core.getInput('repo') || 'neo4j/docs-antora-analyzer'
 // console.log(`runningRepo: ${runningRepo}`)
 const failOnErrors = core.getInput('fail-on-errors') === 'true'
 const failOnWarnings = core.getInput('fail-on-warnings') === 'true'
@@ -33565,18 +33565,12 @@ const ansiLabels = {
   reset: '\x1B[m'
 }
 
-if (typeof payload !== 'undefined' && payload) {
-  console.log(`The event payload: ${payload}`);
-}
-// const payload = JSON.stringify(context.payload, undefined, 2)
-
-
 function processLineByLine(result) {
 
   try {
     let msgData = []    
     // const logFile = core.getInput('log-file')
-    const logFile = typeof payload !== 'undefined' && payload ? core.getInput('log-file') : './log.json'
+    const logFile = core.getInput('log-file') || './log.json'
 
     const rl = readline.createInterface({
       input: fs.createReadStream(logFile),
