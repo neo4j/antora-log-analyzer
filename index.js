@@ -93,13 +93,13 @@ function processLog()
       for(const msg of msgData) {
         if (msg.source) {
           if ( msg.source.worktree || msg.source.url.includes(runningRepo) ) {
-          report.annotations[msg.level].push(constructAnnotation(msg))
+            report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
-            core.info(msg)
+            report.messages.push(constructAnnotation(msg))
             otherMsgs = true
           }
         }
-        report.messages.push(constructAnnotation(msg))
+        
 
       }
 
