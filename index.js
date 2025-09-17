@@ -98,6 +98,7 @@ function processLog()
       // we will output a notice annotation for this later
       // the log might contain issues relating to files outside the building repo.
       for(const msg of msgData.filter(msg => msg.source && !msg.source.url.includes(runningRepo) ))  {
+        core.info(msg)
         otherMsgs = true
       }
 
@@ -145,6 +146,15 @@ function processLog()
         core.endGroup()
       }
       // core.endGroup()
+
+      core.startGroup('Summary')
+      core.info(`Total messages: ${report.summary.messages}`)
+      core.info(`Info: ${report.summary.info}`)
+      core.info(`Warnings: ${report.summary.warn}`)
+      core.info(`Errors: ${report.summary.errors}`)
+      core.info(`Log levels: ${unique(levelsInLog).sort().join(', ')}`)
+      core.info(`runningRepo: ${runningRepo}`)
+      core.endGroup()
 
       if (failOnErrors === true && levelsInLog.includes('error')) {
         core.setFailed(`Antora log contains one or more errors`);
