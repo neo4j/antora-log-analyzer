@@ -96,7 +96,7 @@ function processLog()
             report.annotations[msg.level].push(constructAnnotation(msg))
         } else {
             // otherMsgs = true
-            report.annotations.warn.push(constructAnnotation(msg))
+            report.annotations["warn"].push(constructAnnotation(msg))
           }
         }
         report.messages.push(constructAnnotation(msg))
