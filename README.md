@@ -3,6 +3,12 @@
 GitHub action to read json log output from Antora.
 Creates Github actions annotations based on warnings and errors in the log file, and can be used to mark a workflow as failed if warnings or errors are found.
 
+
+## Version 2
+
+Version 2 uses Node.js 24.
+
+
 ## Usage
 
 ```yaml
