@@ -1,8 +1,9 @@
 {
   "name": "antora-log-analyzer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "index.js",
+  "packageManager": "npm@11.14.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,10 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.10.1",
-    "@actions/github": "^5.1.1"
+    "@actions/core": "1.11.1",
+    "@actions/github": "6.0.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@vercel/ncc": "0.38.4"
+  },
+  "//": "undici override forces past the <=6.23.0 vulnerable range. Safe here because this action only reads github.context — @actions/http-client is never invoked, so undici is loaded but inert. Do not copy into a repo that actually uses http-client without verifying compatibility.",
+  "overrides": {
+    "undici": "6.25.0"
   }
 }

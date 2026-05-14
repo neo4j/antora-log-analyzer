@@ -106,3 +106,6 @@ typings/
 build/
 log.json
 context.json
+
+# Claude
+.claude
