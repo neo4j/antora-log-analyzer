@@ -9,12 +9,51 @@ on:
       - 'package-lock.json'
       - '.github/workflows/build-dist.yml'
 
-permissions:
-  contents: write
-
 jobs:
+  # Build job: runs PR-supplied code (npm ci, ncc) with a read-only token.
+  # Even a malicious postinstall script in the PR can't push to the repo from here.
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+
+      - name: Install deps
+        # --ignore-scripts blocks the main supply-chain attack vector
+        # (malicious pre/post install scripts). All deps are pure JS.
+        run: npm ci --ignore-scripts
+
+      - name: Build dist
+        run: |
+          rm -rf dist
+          npx ncc build index.js -o dist
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  # Commit job: has a write-scoped token but NEVER executes PR-supplied code.
+  # It only does git operations on the artifact produced by the build job.
+  commit:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -23,18 +62,14 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - name: Replace dist/ with built artifact
+        run: rm -rf dist
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          node-version: 24
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build dist
-        run: |
-          rm -rf dist
-          npx ncc build index.js -o dist
+          name: dist
+          path: dist/
 
       - name: Check whether dist changed
         id: diff
