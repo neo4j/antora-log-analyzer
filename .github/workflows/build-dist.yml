@@ -32,12 +32,15 @@ jobs:
         run: npm ci
 
       - name: Build dist
-        run: npx ncc build index.js -o dist
+        run: |
+          rm -rf dist
+          npx ncc build index.js -o dist
 
       - name: Check whether dist changed
         id: diff
         run: |
-          if git diff --quiet -- dist/; then
+          git add -N dist/
+          if [ -z "$(git status --porcelain -- dist/)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"

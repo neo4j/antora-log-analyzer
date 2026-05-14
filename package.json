@@ -16,6 +16,7 @@
   "devDependencies": {
     "@vercel/ncc": "0.38.4"
   },
+  "//": "undici override forces past the <=6.23.0 vulnerable range. Safe here because this action only reads github.context — @actions/http-client is never invoked, so undici is loaded but inert. Do not copy into a repo that actually uses http-client without verifying compatibility.",
   "overrides": {
     "undici": "6.25.0"
   }
